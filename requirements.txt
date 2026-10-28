@@ -1,0 +1,9 @@
+croniter==6.2.4
+pyaes==1.6.1
+pyasn1==0.6.4
+python-dateutil==3.0.0
+python-dotenv==1.2.4
+rsa==4.9.1
+six==1.17.0
+Telethon==1.45.0
+tzdata==2026.5
