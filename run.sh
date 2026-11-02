@@ -17,7 +17,7 @@ if [ -f "$SUMMARY" ]; then
     echo "Сводка за $TODAY уже есть, пропускаю"
 else
     rm -f "$SUMMARY.tmp"
-    PROVIDER="${LLM_PROVIDER:-claude}"   # claude | gemini
+    PROVIDER="${LLM_PROVIDER:-claude}"
 
     TASK="Ты готовишь ежедневный брифинг для студента магистратуры в стиле консалтинговых компаний. Сегодня $TODAY. Цель: студент за одну минуту понимает, что нужно сделать, и не пропускает ни одного дедлайна или изменения в учёбе.
 
@@ -55,7 +55,6 @@ else
 
     case "$PROVIDER" in
       claude)
-        # Claude читает входные файлы из OUTPUT_DIR и может писать только в RESULTS_DIR
         (cd "$OUTPUT_DIR" && claude -p \
             "$TASK Файлы лежат в текущей папке. Запиши итоговую сводку в markdown в файл $SUMMARY.tmp." \
             --add-dir "$RESULTS_DIR" \
@@ -63,11 +62,27 @@ else
             --permission-prompts none)
         ;;
 
+      codex)
+        find "$OUTPUT_DIR" -maxdepth 1 -type f -print0 | sort -z |
+          while IFS= read -r -d '' f; do
+            printf '\n===== FILE: %s =====\n' "${f##*/}"
+            cat "$f"
+          done |
+        codex exec \
+            --cd "$OUTPUT_DIR" \
+            --sandbox read-only \
+            --skip-git-repo-check \
+            --ephemeral \
+            --color never \
+            ${CODEX_MODEL:+--model "$CODEX_MODEL"} \
+            --output-last-message "$SUMMARY.tmp" \
+            "$TASK Письма и сообщения переданы ниже в блоке <stdin>, ничего не запускай. Ответь только текстом сводки в markdown, не оборачивай его в блок кода."
+        ;;
+
       gemini)
         : "${GEMINI_API_KEY:?Не задан GEMINI_API_KEY}"
         GEMINI_MODEL="${GEMINI_MODEL:-gemini-flash-lite-latest}"
 
-        # Склеиваем все файлы из OUTPUT_DIR с заголовками и упаковываем в JSON через jq
         RESPONSE=$(
           find "$OUTPUT_DIR" -maxdepth 1 -type f -print0 | sort -z |
             while IFS= read -r -d '' f; do
@@ -90,13 +105,12 @@ else
             exit 1
         fi
 
-        # Берём текст ответа, пропуская «мысли» модели, если они есть
         jq -r '[.candidates[0].content.parts[]? | select(.thought != true) | .text // empty] | join("")' \
             <<<"$RESPONSE" > "$SUMMARY.tmp"
         ;;
 
       *)
-        echo "Неизвестный LLM_PROVIDER: $PROVIDER (ожидается claude или gemini)"
+        echo "Неизвестный LLM_PROVIDER: $PROVIDER (ожидается claude, codex или gemini)"
         exit 1
         ;;
     esac
