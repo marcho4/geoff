@@ -10,7 +10,7 @@ API_ID = int(os.environ["TG_API_ID"])
 API_HASH = os.environ["TG_API_HASH"]
 FOLDER_NAME = os.environ.get("TG_FOLDER", "HSE")
 SESSION_PATH = os.environ.get("TG_SESSION", "tg_session")
-HOURS_BACK = int(os.environ.get("HOURS_BACK", "24"))
+HOURS_BACK = float(os.environ.get("HOURS_BACK", "24"))
 OUTPUT_PATH = os.environ.get("TG_OUTPUT", "telegram_export.json")
 
 
@@ -46,11 +46,13 @@ def sender_name(sender) -> str:
     )
 
 
-async def recent_messages(client, dialog, cutoff):
+async def recent_messages(client, dialog, cutoff, until=None):
     messages = []
     async for message in client.iter_messages(dialog.entity):
         if message.date < cutoff:
             break
+        if until is not None and message.date >= until:
+            continue
         if not message.text:
             continue
         sender = await message.get_sender()
@@ -63,14 +65,15 @@ async def recent_messages(client, dialog, cutoff):
     return messages
 
 
-async def export_folder():
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=HOURS_BACK)
+async def export_folder(cutoff=None, until=None):
+    until = until or datetime.now(timezone.utc)
+    cutoff = cutoff or until - timedelta(hours=HOURS_BACK)
     async with TelegramClient(SESSION_PATH, API_ID, API_HASH) as client:
         dialog_filter = await find_folder(client, FOLDER_NAME)
         dialogs = await folder_dialogs(client, dialog_filter)
         chats = []
         for dialog in dialogs:
-            messages = await recent_messages(client, dialog, cutoff)
+            messages = await recent_messages(client, dialog, cutoff, until)
             if messages:
                 chats.append({"chat": dialog.name, "messages": messages})
     return {"exported_at": datetime.now(timezone.utc).isoformat(), "chats": chats}

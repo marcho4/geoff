@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "issues"],
+  "properties": {
+    "verdict": { "type": "string", "enum": ["ok", "needs_changes"] },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "where", "problem", "suggestion", "evidence"],
+        "properties": {
+          "severity":   { "type": "string", "enum": ["major", "minor"] },
+          "where":      { "type": "string", "description": "Фрагмент или раздел черновика" },
+          "problem":    { "type": "string" },
+          "suggestion": { "type": "string", "description": "Как именно исправить" },
+          "evidence":   { "type": "string", "description": "Цитата из задачи или источника, подтверждающая проблему; пустая строка, если это замечание по качеству" }
+        }
+      }
+    }
+  }
+}

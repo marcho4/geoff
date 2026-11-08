@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tasks"],
+  "properties": {
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "type", "goal", "source", "source_quote", "deadline", "context"],
+        "properties": {
+          "title":        { "type": "string", "description": "Короткое название задачи, до 60 символов" },
+          "type":         { "type": "string", "enum": ["reply", "document", "checklist"] },
+          "goal":         { "type": "string", "description": "Какой черновик нужен и что в нём должно быть" },
+          "source":       { "type": "string", "description": "Чат или отправитель + тема письма" },
+          "source_quote": { "type": "string", "description": "Дословная цитата сообщения, из которого следует задача" },
+          "deadline":     { "type": ["string", "null"], "description": "YYYY-MM-DD HH:MM или YYYY-MM-DD, null если не указан" },
+          "context":      { "type": "string", "description": "Всё из сообщений, что нужно исполнителю: требования, формат, адресат, связанные детали" }
+        }
+      }
+    }
+  }
+}

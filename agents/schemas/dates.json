@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["events"],
+  "properties": {
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "time", "course", "title", "kind", "status", "note", "source", "updated"],
+        "properties": {
+          "date":    { "type": ["string", "null"], "description": "YYYY-MM-DD или null, если дата не указана" },
+          "time":    { "type": ["string", "null"], "description": "HH:MM по Москве или null" },
+          "course":  { "type": "string" },
+          "title":   { "type": "string" },
+          "kind":    { "type": "string", "enum": ["deadline", "exam", "defense", "schedule_change", "event", "other"] },
+          "status":  { "type": "string", "enum": ["active", "moved", "cancelled", "tentative"] },
+          "note":    { "type": "string", "description": "Короткое пояснение: что было до переноса, требования и т.п. Пустая строка, если нечего добавить" },
+          "source":  { "type": "string", "description": "Чат или тема письма, откуда взято" },
+          "updated": { "type": "string", "description": "YYYY-MM-DD последнего изменения записи" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decisions"],
+  "properties": {
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["n", "accept", "severity", "reason"],
+        "properties": {
+          "n":        { "type": "integer", "description": "Номер замечания из входа" },
+          "accept":   { "type": "boolean" },
+          "severity": { "type": "string", "enum": ["major", "minor"], "description": "Итоговая важность по мнению валидатора" },
+          "reason":   { "type": "string" }
+        }
+      }
+    }
+  }
+}

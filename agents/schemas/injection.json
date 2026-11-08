@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "findings", "summary"],
+  "properties": {
+    "verdict":  { "type": "string", "enum": ["safe", "suspicious", "injection"] },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["quote", "reason"],
+        "properties": {
+          "quote":  { "type": "string", "description": "Дословный подозрительный фрагмент" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "summary": { "type": "string", "description": "Одно предложение для студента: что не так или почему всё в порядке" }
+  }
+}

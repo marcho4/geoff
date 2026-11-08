@@ -119,5 +119,12 @@ else
     mv "$SUMMARY.tmp" "$SUMMARY"
 fi
 
+# Обновляем календарь до отправки, чтобы в конце были все известные дедлайны.
+./act.sh calendar || echo "Не удалось обновить календарь; использую сохранённый"
+python3 morning_deadlines.py "$SUMMARY" "$PWD/state/dates.json"
+
 python3 send_summary.py "$SUMMARY" \
   || { echo "Не удалось отправить в Telegram"; exit 1; }
+
+# Активный режим: календарь дат + черновики по задачам. Его ошибки не ломают сводку.
+./act.sh tasks || echo "act.sh завершился с ошибкой"

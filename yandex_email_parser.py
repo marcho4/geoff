@@ -62,14 +62,15 @@ def to_record(message: Message) -> dict:
     }
 
 
-def export_mail():
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=HOURS_BACK)
+def export_mail(cutoff=None, until=None):
+    until = until or datetime.now(timezone.utc)
+    cutoff = cutoff or until - timedelta(hours=HOURS_BACK)
     client = connect()
     try:
         messages = [fetch_message(client, mid) for mid in recent_message_ids(client, cutoff)]
     finally:
         client.logout()
-    records = [to_record(m) for m in messages if message_date(m) >= cutoff]
+    records = [to_record(m) for m in messages if cutoff <= message_date(m) < until]
     records.sort(key=lambda r: r["date"])
     return {"exported_at": datetime.now(timezone.utc).isoformat(), "messages": records}
 

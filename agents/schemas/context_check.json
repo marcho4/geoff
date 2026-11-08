@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sufficient", "reason", "missing"],
+  "properties": {
+    "sufficient": {"type": "boolean"},
+    "reason": {"type": "string"},
+    "missing": {"type": "array", "items": {"type": "string"}}
+  }
+}
